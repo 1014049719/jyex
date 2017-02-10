@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="4514" systemVersion="12F45" targetRuntime="iOS.CocoaTouch" variant="6xAndEarlier" propertyAccessControl="none">
+    <dependencies>
+        <deployment defaultVersion="1536" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UIPresentImage">
+            <connections>
+                <outlet property="m_Toolbar" destination="35" id="49"/>
+                <outlet property="m_btnJump" destination="56" id="58"/>
+                <outlet property="m_btnLastImage" destination="42" id="50"/>
+                <outlet property="m_btnNextImage" destination="47" id="52"/>
+                <outlet property="m_imageView" destination="16" id="17"/>
+                <outlet property="m_scrollView" destination="4" id="11"/>
+                <outlet property="navigationBar" destination="31" id="48"/>
+                <outlet property="view" destination="1" id="3"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="1">
+            <rect key="frame" x="0.0" y="20" width="320" height="460"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="4">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <subviews>
+                        <imageView contentMode="scaleToFill" id="16">
+                            <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        </imageView>
+                    </subviews>
+                    <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                </scrollView>
+                <navigationBar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="blackTranslucent" id="31">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <inset key="insetFor6xAndEarlier" minX="0.0" minY="0.0" maxX="0.0" maxY="-20"/>
+                    <items>
+                        <navigationItem title="Music" id="32">
+                            <barButtonItem key="leftBarButtonItem" title="完成" style="done" id="34">
+                                <connections>
+                                    <action selector="onToolCancel:" destination="-1" id="55"/>
+                                </connections>
+                            </barButtonItem>
+                        </navigationItem>
+                    </items>
+                </navigationBar>
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" id="35">
+                    <rect key="frame" x="0.0" y="416" width="320" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <items>
+                        <barButtonItem enabled="NO" style="plain" systemItem="action" id="44">
+                            <connections>
+                                <action selector="onToolOprNote:" destination="-1" id="54"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="65"/>
+                        <barButtonItem image="btn_jumpimage.png" style="plain" id="56">
+                            <inset key="imageInsets" minX="13" minY="13" maxX="13" maxY="13"/>
+                            <connections>
+                                <action selector="onJumpURL:" destination="-1" id="59"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem width="21" style="plain" systemItem="fixedSpace" id="60"/>
+                        <barButtonItem enabled="NO" image="btn_left.png" style="plain" id="42">
+                            <connections>
+                                <action selector="onToolLast:" destination="-1" id="51"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem width="13" style="plain" systemItem="fixedSpace" id="46"/>
+                        <barButtonItem image="btn_right.png" style="plain" id="47">
+                            <connections>
+                                <action selector="onToolNext:" destination="-1" id="53"/>
+                            </connections>
+                        </barButtonItem>
+                    </items>
+                </toolbar>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="btn_jumpimage.png" width="29" height="29"/>
+        <image name="btn_left.png" width="29" height="29"/>
+        <image name="btn_right.png" width="29" height="29"/>
+    </resources>
+</document>

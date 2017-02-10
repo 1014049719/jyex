@@ -1,0 +1,1018 @@
+头像URL：uc_server/avatar.php?uid={用户ID}&size={尺寸大小：small-小、middle-中、big-大}
+POST数据格式（带文件的除外）：
+    para={
+          "参数名1":参数值1,
+	  "参数名2":参数值2
+	  }
+
+//==========================================1、日志部分==========================================
+1-1、发布日志：
+   URL：mobile.php?mod=blog&ac=add
+   POST数据：
+            subject  —— 日志标题
+	    savealbumid —— 0 
+	    newalbum —— 直接用'请输入相册名称'
+	    view_albumid —— none
+	    message —— 日志内容
+	    classid —— 日志类型：公告、教学日志、家园配合、宝宝作品、点点滴滴、教学方法与分享、专题讨论与分享、平安接送
+	    tag —— 日志标签
+	    friend —— 0表示全部人可以看、1表示好友可以看、3只有自己看(学校用0、班级用1、个人日志用3)
+	    isSendsms —— 是否发送消息给好友，1-发送、0-不发送
+	    synspaceid —— 需要同步到的用户信息，格式：用户UID#用户名(发自己空间的日志不用)
+
+    返回结果：
+            {"result"true|false:,"msg":"success|failse"}
+
+1-2、获取日志栏目：
+   URL：mobile.php?mod=blog&ac=classlist&uid=用户ID
+   POST数据：
+            无
+
+    返回结果：
+            记录集合
+
+//===============================================2、用户部分===================================================
+
+2-1、用户登录：
+   URL：mobile.php?mod=member&ac=login
+   POST数据：
+        username —— 用户名
+        password —— 密码
+
+   返回结果：
+        {"result":结果（成功返回true，失败返回false）,"msg":"信息（no_user-无该用户、login_success-登录成功、login_false-登录失败）","uid":"用户ID","groupid":"用户组ID","sessid":"SESSION ID，当登录成功时返回"}
+
+//----------------------------------------------------------------
+
+2-2、用户注册：
+   URL：mobile.php?mod=member&ac=register
+   POST数据：
+	username —— 用户名（必填）
+	password —— 密码（必填）
+	nickname —— 昵称
+	realname —— 真实姓名（必填）
+	email —— 邮箱地址
+	questionid —— 问题（留空）
+	answer —— 答案（留空）
+
+    返回结果：
+	{"result":结果（成功返回true，失败返回false）,"msg":"信息（reg_success-注册成功、reg_false-注册失败）","uid":"大于0标识成功，否则意义如下"}
+
+    UID返回的意义：
+	-1:用户名不合法
+	-2:包含不允许注册的词语
+	-3:用户名已经存在
+	-4:Email 格式有误
+	-5:Email 不允许注册
+	-6:该 Email 已经被注册
+	-99:申请的UID已被占用，请重新申请
+
+//---------------------------------------------------------------
+
+2-3、用户修改：
+   URL：mobile.php?mod=member&ac=mod
+   POST数据：
+	uid —— 要修改的用户ID
+	username —— 要修改的用户名
+	oldpassword —— 旧密码
+	password —— 新密码（如果不修改密码，则留空）
+	email —— 邮箱地址（如果不修改则留空）
+	nickname —— 昵称
+	realname —— 真实姓名
+	mobile —— 手机号码
+
+    返回结果：
+	{"result":处理结果（成功返回true，失败返回false）,"message":提示信息}
+
+2-4、当前用户详细信息：
+   URL：mobile.php?mod=member&ac=view
+   POST数据：
+	无
+
+   返回结果：
+	{
+	"uid":"257",
+	"email":"13507888455@jy1x.com",
+	"username":"13507888455",
+	"password":"2a1b39b45147a731f9858e170236d275",
+	"status":"0",
+	"emailstatus":"0",
+	"avatarstatus":"0",
+	"videophotostatus":"0",
+	"adminid":"0",
+	"groupid":"33",
+	"groupexpiry":"0",
+	"extgroupids":"",
+	"regdate":"1348545915",
+	"credits":"0",
+	"notifysound":"0",
+	"timeoffset":"8",
+	"newpm":"0",
+	"newprompt":"1",
+	"accessmasks":"0",
+	"allowadmincp":"0",
+	"onlyacceptfriendpm":"0",
+	"conisbind":"0",
+	"isstar":"0",
+	"startorder":"0",
+	"ishornor":"0",
+	"hornororder":"0",
+	"audiofile":null,
+	"mainjiazhang":"0",
+	"syscap":null,
+	"jytitle":null,
+	"jycontent":null,
+	"isclose":"1",
+	"tplimg":null,
+	"nickname":"Jnickname",
+	"realname":"Jrealname",
+	"mobile":"13507888455",
+	"bio":"",
+	"telephone":"",
+	"address":"",
+	"zipcode":"",
+	"lastvisit":1351651200,
+	"regip":"180.139.136.202",
+	"lastip":"180.139.136.202",
+	"lastactivity":1351644379,
+	"lastpost":1351576201,
+	"lastsendmail":"0",
+	"invisible":"0",
+	"buyercredit":"0",
+	"sellercredit":"0",
+	"favtimes":"0",
+	"sharetimes":"0",
+	"profileprogress":"0"
+	}
+
+2-5、查询指定用户详细信息：
+   URL：mobile.php?mod=member&ac=search
+   POST数据：
+	uid —— 查询用户的ID
+	username —— 查询用户的用户名
+
+   返回结果：
+	{
+        "accid":用户ID
+        "accountname":用户名
+        "birthdate":生日
+        "createtime":创建时间
+        "email":电子邮箱
+        "homepage":个人主页
+        "idcard":身份证号
+        "logintime":最后登录时间
+        "mobile":手机号码
+        "msn":MSN号
+        "nickname":昵称
+        "password":密码
+        "qq":QQ号
+        "realname":真实姓名
+        "sex":性别
+        "sourceappid":未知
+        "telephone":电话
+	}
+
+2-6、上传头像：
+    URL：mobile.php?mod=member&ac=uploadavartar
+    POST数据：
+	avarfile -- 头像文件
+
+    返回结果：
+         {
+	 "res":上传结果，返回true 或 false
+	 "bigsrc":大头像地址，如果res为false，不存在
+	 "middlesrc":中头像地址，如果res为false，不存在
+	 "smallsrc":小头像地址，如果res为false，不存在
+	 "msg":提示信息
+	 }
+
+//===========================================3、消息部分======================================
+
+3-1、发送消息：
+   URL：mobile.php?mod=pm&ac=send
+   POST数据：
+	isSendUap —— 是否同时发送到UAP，1-发送、0-不发送（不用）
+	toid —— 发送到discuz的用户ID
+	touapid —— 发送到UAP的用户ID（不用）
+	subject —— 短信标题
+	message —— 短信内容
+	instantly —— 是否直接发送：1-(默认值) 直接发送消息、2-进入发送短消息的界面
+	replypid —— 回复的消息 ID，大于 0:回复指定的短消息、0:(默认值) 发送新的短消息
+	isusername —— msgto 参数是否为用户名：1:msgto 参数为用户名、0:(默认值) msgto 参数为用户 ID
+	type —— 消息类别，1:群聊消息、0:(默认值)私人消息
+
+    返回结果：
+	{
+	"result":是否成功，成功为true、失败为false,
+	"pid":发送到discuz的消息ID,
+	"msg":提示消息,
+	"uappmid":发送到UAP的消息ID，多个用户返回多个ID，用“,”分割
+	}
+
+//------------------------------------------------------------------
+
+3-2、列出消息：
+   URL：mobile.php?mod=pm&ac=list
+   POST数据：
+        isListUap —— 是否获取UAP的数据，1-获取UAP的数据、0-获取discuz的数据
+	offset —— 开始记录数，当isListUap=1时有效
+	limit —— 获取记录数，当isListUap=1时有效
+	page —— 获取的页数，当isListUap=0时有效
+	pagesize —— 每页显示的记录数，当isListUap=0时有效
+	folder —— 消息文件夹，默认为inbox
+	filter —— 过滤方式，默认为newpm
+	msglen —— 截取短消息内容文字长度，0为不截取，默认为0
+    
+    返回结果：
+	当isListUap=1时：
+	[
+	{
+	"content":消息内容,
+	"fromAccid":发送者ID,
+	"msgid":消息ID,
+	"sendTime":发送时间，格式为：yyyy-mm-dd hh24:mi:ss,
+	"toAccid":接收消息的用户ID
+	}
+	]
+
+	当isListUap=0时：
+	{
+	"count":消息总数,
+	"data":
+	[
+	{
+	"plid":会话 ID,
+	"uid":当前用户 ID,
+	"isnew":是否未读标记,
+	"pmnum":该会话相对于当前用户的消息数量,
+	"lastupdate":当前用户的最后更新时间,
+	"lastdateline":会话最后更新时间,
+	"authorid":会话发起者 ID,
+	"pmtype":会话类别 1: 私人消息, 2: 群聊消息,
+	"subject":标题,
+	"members":会话参与人数,
+	"touid":pmtype参数为1时,该返回值表示对方用户 ID,
+	"tousername":pmtype参数为1时,该返回值表示对方用户名,
+	"founddateline":会话发起时间,
+	"lastauthorid":会话最后一条的发送人 ID,
+	"lastauthor":会话最后一条的发送人用户名,
+	"lastsummary":会话最后一条的发送的内容截取,
+	"pmid":消息ID,
+	"msgfromid":发件人用户 ID,
+	"msgfrom":发件人用户名,
+	"msgtoid":收件人用户 ID,
+	"new":1:未读短消息、0:已读短消息,
+	"message":内容,
+	"dateline":发送时间的时间戳，
+	"daterange":1-今天、2-昨天、3-前天、4-上周、5-更早
+	}
+	]
+	}
+
+//------------------------------------------------------------------
+
+3-3、获取新消息数：
+   URL：mobile.php?mod=pm&ac=checknew
+   POST数据：
+	isCheckUap —— 是否获取UAP的数量，1-获取UAP、0-获取discuz
+	more —— 是否显示更多信息。当isCheckUap=0时有效，0-(默认值) 只返回短消息数、1-返回短消息数、最后消息时间、2-返回短消息数、最后消息时间, 最后消息内容
+
+   返回结果：
+	当isCheckUap=1时：
+	{
+	"total":消息数
+	}
+
+	当isCheckUap=0时：
+	{
+	"more":是否显示更多信息,
+	"data":数据，结果请看“data说明”。
+	}
+
+    data说明：
+        当more=0时：
+	data:消息数
+
+        当more=1时：
+	{
+	"newpm":未读消息数,
+	"newprivatepm":私人消息数
+	}
+
+	当more=3时：
+	{
+	"newpm":未读消息数,
+	"newprivatepm":私人消息数,
+	"newchatpm":群聊消息数,
+	"lastdate":最后消息时间,
+	"lastmsgfromid":最后消息发件人 ID,
+	"lastmsgfrom":最后消息发件人用户名,
+	"lastmsg":最后消息内容
+	}
+
+3-4、读取单条消息：
+   URL：mobile.php?mod=pm&ac=read
+   POST数据：
+	isUapMsg —— 是否获取UAP的数据，1-获取UAP数据、0-获取discuz数据。
+	msgid —— 要获取消息的ID，当isUapMsg=1时，填写UAP中消息的ID；当isUapMsg=0时，填写discuz中消息的ID。
+
+   返回结果：
+	当isUapMsg=1时：
+	{
+	"content":消息内容,
+	"fromAccid":消息发送者ID,
+	"msgid":消息ID,
+	"sendTime":发送时间,
+	"toAccid":消息接收者编号
+	}
+
+	当isUapMsg=0时：
+	{
+	"pmid":消息 ID,
+	"plid":所属会话 ID,
+	"authorid":消息发起者 ID,
+	"author":消息发起者用户名,
+	"pmtype":会话类别 1: 私人消息, 2: 群聊消息,
+	"subject":标题,
+	"members":会话参与人数,
+	"dateline":消息发起时间,
+	"message":消息内容,
+	"founderuid":发起会话的用户 ID,
+	"founddateline":会话发起时间,
+	"touid":pmtype参数为1时,该返回值表示对方用户 ID,
+	"msgfromid":发件人用户 ID,
+	"msgfrom":发件人用户名,
+	"msgtoid":收件人用户 ID
+	}
+
+//=======================================4、好友部分=========================================
+4-1、获取好友列表：
+   URL：mobile.php?mod=friend&ac=list
+   POST数据：
+	无
+
+   返回结果：
+	[
+	{
+	"uid":好友用户ID,
+	"username":好友用户名,
+	"realname":好友真实姓名,
+	"groupid":好友所属组ID,
+	"grouptitle":好友所属组名称
+	},
+	{
+	"uid":好友用户ID,
+	"username":好友用户名,
+	"realname":好友真实姓名,
+	"groupid":好友所属组ID,
+	"grouptitle":好友所属组名称
+	}
+	]
+
+4-2、获取学校列表：
+   URL：mobile.php?mod=friend&ac=schoolList
+   POST数据：
+	无
+
+   返回结果：
+	[
+	{
+	"uid":好友用户ID,
+	"username":好友用户名,
+	"realname":好友真实姓名,
+	"groupid":好友所属组ID,
+	"grouptitle":好友所属组名称
+	},
+	{
+	"uid":好友用户ID,
+	"username":好友用户名,
+	"realname":好友真实姓名,
+	"groupid":好友所属组ID,
+	"grouptitle":好友所属组名称
+	}
+	]
+
+4-3、获取班级列表：
+   URL：mobile.php?mod=friend&ac=classList
+   POST数据：
+	无
+
+   返回结果：
+	[
+	{
+	"uid":好友用户ID,
+	"username":好友用户名,
+	"realname":好友真实姓名,
+	"groupid":好友所属组ID,
+	"grouptitle":好友所属组名称
+	},
+	{
+	"uid":好友用户ID,
+	"username":好友用户名,
+	"realname":好友真实姓名,
+	"groupid":好友所属组ID,
+	"grouptitle":好友所属组名称
+	}
+	]
+
+4-4、获取教师列表：
+   URL：mobile.php?mod=friend&ac=teacherList
+   POST数据：
+	无
+
+   返回结果：
+	[
+	{
+	"uid":好友用户ID,
+	"username":好友用户名,
+	"realname":好友真实姓名,
+	"groupid":好友所属组ID,
+	"grouptitle":好友所属组名称,
+	"audiofile":语音文件
+	},
+	{
+	"uid":好友用户ID,
+	"username":好友用户名,
+	"realname":好友真实姓名,
+	"groupid":好友所属组ID,
+	"grouptitle":好友所属组名称,
+	"audiofile":语音文件
+	}
+	]
+
+4-5、获取家长列表：
+   URL：mobile.php?mod=friend&ac=jiazhangList
+   POST数据：
+	无
+
+   返回结果：
+	[
+	{
+	"uid":好友用户ID,
+	"username":好友用户名,
+	"realname":好友真实姓名,
+	"groupid":好友所属组ID,
+	"grouptitle":好友所属组名称,
+	"audiofile":语音文件
+	},
+	{
+	"uid":好友用户ID,
+	"username":好友用户名,
+	"realname":好友真实姓名,
+	"groupid":好友所属组ID,
+	"grouptitle":好友所属组名称
+	"audiofile":语音文件
+	}
+	]
+
+
+//====================================5、附件部分==========================
+5-1、上传附件：
+    URL：mobile.php?mod=blog&ac=uploadAttachment
+    POST数据：
+	attachment：附件内容
+
+    返回结果：
+	{
+	"result":成功为true，失败为false,
+	"message":信息提示,
+	"attachment":{
+		     "id":附件ID,
+		     "path":附件路径，跟目录在网站的根目录
+		     }
+	}
+
+
+5-2、下载附件：
+    URL：mobile.php?mod=blog&ac=downAttachment&aid=附件ID
+    POST数据：
+        无
+
+    返回结果：
+        附件的数据。
+
+5-3、终端上传附件：
+    URL：mobile.php?mod=pajs&ac=uploadAttachment
+    POST数据：
+	attachment：附件内容
+
+    返回结果：
+	{
+	"result":成功为true，失败为false,
+	"message":信息提示,
+	"attachment":{
+		     "id":附件ID,
+		     "path":附件路径，跟目录在网站的根目录
+		     }
+	}
+
+
+5-4、终端下载附件：
+    URL：mobile.php?mod=pajs&ac=downAttachment&aid=附件ID
+    POST数据：
+        无
+
+    返回结果：
+        附件的数据。
+
+5-5、终端上传附件(已经指定了文件路径)：
+    URL：mobile.php?mod=pajs&ac=uploadAttachmentByPath
+    POST数据：
+	attachment：附件内容
+	filepath：文件的路径
+
+    返回结果：
+	{
+	"result":成功为true，失败为false,
+	"message":信息提示,
+	"attachment":{
+		     "id":附件ID,
+		     "path":附件路径，跟目录在网站的根目录
+		     }
+	}
+
+//==================================6、应用部分==============================
+6-1、所有应用列表：
+   URL：mobile.php?mod=app&ac=allapp
+   POST数据：
+	无
+
+   返回结果：
+	[
+	{"appCreateTime":创建时间,"appNname":应用名称,"appid":应用编号}
+	]
+
+
+6-2、单个应用信息：
+   URL：mobile.php?mod=app&ac=oneapp
+   POST数据：
+	appid：应用编号
+
+   返回结果：
+	{"appNname":应用名称,"appid":应用编号}
+
+
+6-3、我的应用：
+   URL：mobile.php?mod=app&ac=myapp
+   POST数据：
+	无
+
+   返回结果：
+	[
+	{"appCreateTime":创建时间,"appNname":应用名称,"appid":应用编号}
+	]
+
+6-4、获取用户业务信息：
+   URL：mobile.php?mobile.php?mod=app&ac=userapp
+   POST数据：
+	无
+
+   返回结果：
+	{
+	"userapp":[{第一个业务的数据},{第二个业务的数据}],
+	"otherapp":[{第一个业务的数据},{第二个业务的数据}],
+	"defaultlogo":"默认业务LOGO，如果数据中没有LOGO这个字段，使用这个LOGO"
+	}
+
+//==================================7、平安接送部分==============================
+7-1、终端登录：
+   URL：mobile.php?mod=pajs&ac=login
+   POST数据：
+	loginname:登录名
+	loginpass:登录密码
+   返回结果：
+	{
+	"result":结果（成功返回true，失败返回false）,
+	"msg":提示信息,
+	"sessid":SESSIONID，成功登录后返回，失败则没有此参数,
+	"server_date":服务器时间
+	}
+
+7-2、获取平安卡信息：
+   URL：mobile.php?mod=pajs&ac=card
+   POST数据：
+	cardnum：卡号（可选）
+	cardtype：卡类型（可选）1-家长卡、2-教师卡、3-待接卡、4-入园卡、5-出园卡
+	carduser：持卡人（可选）
+	note：备注（可选）
+	order：排序（可选）
+	start：开始记录数（可选，默认为0）
+	limit：获取记录数（可选，默认为8）
+
+   返回结果：
+	[
+	{
+	"cid":卡ID,
+	"cardnum":卡号,
+	"uid":持卡人ID,
+	"baobaouid":宝宝UID
+	"baobaouser":宝宝用户名
+	"note":备注,
+	"realname":持卡人姓名
+	},
+	{
+	"cid":卡ID,
+	"cardnum":卡号,
+	"uid":持卡人ID,
+	"baobaouid":宝宝UID
+	"baobaouser":宝宝用户名
+	"note":备注,
+	"realname":持卡人姓名
+	}
+	]
+
+7-3、获取值班记录信息：
+   URL：mobile.php?mod=pajs&ac=duty
+   POST数据：
+	schoolname:学校名称（可选）
+	classname:班级名称（可选）
+	teachername:教师名称（可选）
+	dutystart:开始时间（可选）
+	dutyend:结束时间（可选）
+	note:备注（可选）
+	order：排序（可选）
+	start：开始记录数（可选，默认为0）
+	limit：获取记录数（可选，默认为8）
+
+   返回结果：
+	[
+	{
+	"id":值班记录ID,
+	"schoolid":学校ID,
+	"classid":班级ID,
+	"teacherid":教师ID,
+	"dutystart":值班开始时间,
+	"dutyend":值班结束时间,
+	"note":备注,
+	"schoolname":学校名称,
+	"classname":班级名称,
+	"teachername":教师名称,
+	"schoolusername":学校用户名,
+	"classusername":班级用户名,
+	"teacherusername":教师用户名
+	},
+	{
+	"id":值班记录ID,
+	"schoolid":学校ID,
+	"classid":班级ID,
+	"teacherid":教师ID,
+	"dutystart":值班开始时间,
+	"dutyend":值班结束时间,
+	"note":备注,
+	"schoolname":学校名称,
+	"classname":班级名称,
+	"teachername":教师名称,
+	"schoolusername":学校用户名,
+	"classusername":班级用户名,
+	"teacherusername":教师用户名
+	}
+	]
+
+7-4、获取终端信息：
+   URL：mobile.php?mod=pajs&ac=terminal
+   POST数据：
+	schoolname:学校名称（可选）
+	loginname:登录名（可选）
+	order：排序（可选）
+	start：开始记录数（可选，默认为0）
+	limit：获取记录数（可选，默认为8）
+
+   返回结果：
+	[
+	{
+	"tid":终端ID,
+	"uid":所属学校ID,
+	"loginname":终端登录名,
+	"loginpass":终端登录密码,
+	"note":备注,
+	"realname":所属学校名称
+	},
+	{
+	"tid":终端ID,
+	"uid":所属学校ID,
+	"loginname":终端登录名,
+	"loginpass":终端登录密码,
+	"note":备注,
+	"realname":所属学校名称
+	}
+	]
+
+7-5、获取刷卡记录：
+   URL：mobile.php?mod=pajs&ac=record
+   POST数据：
+	id:刷卡记录ID（可选）
+	loginnanme:终端登录名（可选）
+	schoolname:学校名称（可选）
+	cardnum:卡号（可选）
+	carduser:持卡人（可选）
+	cardnum2:卡号2(可选)
+	carduser2:持卡人2(可选)
+	recdate_s:开始刷卡时间（可选）
+	recdate_e:结束刷卡时间（可选）
+	note:备注（可选）
+	order：排序（可选）
+	start：开始记录数（可选，默认为0）
+	limit：获取记录数（可选，默认为8）
+
+   返回结果：
+	[
+	{
+	"id":刷卡记录ID,
+	"tid":终端ID,
+	"videofile":视频文件路径（根目录为网站的根目录）,
+	"picturefile":照片文件路径（根目录为网站的根目录）,
+	"recdate":刷卡时间,
+	"note":备注,
+	"schoolname":学校名称,
+	"cardnum":卡号,
+	"carduser":持卡人,
+	"cardnum2":卡号2,
+	"carduser2":持卡人2,
+	"loginname":终端登录名
+	},
+	{
+	"id":刷卡记录ID,
+	"tid":终端ID,
+	"videofile":视频文件路径（根目录为网站的根目录）,
+	"picturefile":照片文件路径（根目录为网站的根目录）,
+	"recdate":刷卡时间,
+	"note":备注,
+	"schoolname":学校名称,
+	"cardnum":卡号,
+	"carduser":持卡人,
+	"cardnum2":卡号2,
+	"carduser2":持卡人2,
+	"loginname":终端登录名
+	}
+	]
+
+7-6、上传刷卡记录：
+   URL：mobile.php?mod=pajs&ac=uploadrecord
+   POST数据：
+	tid:终端ID
+	cardnum:家长平安卡号
+	cardnum2:教师平安卡号
+	schoolid:学校ID
+	videoFile:视频文件
+	pictureFile:图片文件（如果为：Delay_Upload，则系统自动生成文件路径，并返回）
+	recdate:刷卡时间（UNIX时间戳格式）
+	note:备注
+
+   返回结果：
+	{
+	"jsdate":接收时间,
+	"note":备注,
+	"pictureFile":图片文件路径,
+	"videoFile":视频文件路径
+	}
+
+7-7、终端退出登录：
+   URL：mobile.php?mod=pajs&ac=logout
+   POST数据：
+	无
+
+   返回结果：
+	{
+	"result":退出结果true,
+	"message":提示信息
+	}
+
+7-8、获取宝宝信息：
+   URL：mobile.php?mod=pajs&ac=baobao
+   POST数据：
+	schoolid:学校ID
+
+   返回数据集：
+	[
+	{
+	"uid":宝宝的ID,
+	"username":宝宝的登录名,
+	"realname":宝宝的姓名,
+	"audiofile":宝宝的音频文件
+	}
+	]
+
+   备注：
+	头像获取路径：http://网站路径/uc_server/avatar.php?uid=宝宝ID&size=small
+
+7-9、开站上报：
+   URL：mobile.php?mod=pajs&ac=opensite
+   POST数据:
+	comstr:终端串号
+	loginname:终端登录名
+	loginpass:终端登录密码
+	note:终端备注
+	centerip:中心IP
+	centerport:中心端口
+	url:功能URL地址
+	credate:开站时间
+
+   返回数据：
+	{
+	"tid":终端ID,
+	"uid":学校ID,
+	"loginname":终端登录名,
+	"loginpass":终端密码,
+	"note":备注,
+	"comstr":终端串口,
+	"centerip":中心IP,
+	"centerport":中心端口,
+	"url":功能URL,
+	"credate":开站时间
+	}
+
+7-10、获取用户数据：
+   URL：mobile.php?mod=pajs&ac=userinfo
+   POST数据：
+	schoolid:学校ID
+	start：开始记录数（可选，默认为0）
+	limit：获取记录数（可选，默认为8）
+	   返回数据集：
+	[
+	{
+	"uid"://int 用户ID,可以是宝宝、教师、家长或功能卡、班级等虚拟用户。
+	"username"://String 用户登录名；
+	"realname"://String 用户真实姓名,可用于显示；
+	"voicefileurl"://String 音频文件的“附件URL”用于播报欢迎词等；
+	"picturefileurl"://String （头像）照片文件的“附件URL”可用于显示；
+	"Note "://String 备注，可用于显示。
+	}
+	]
+	   备注：
+	头像获取路径：http://网站路径/uc_server/avatar.php?uid=宝宝ID&size=small会自动跳转到具体文件。
+
+7-11、终端状态上报及中心命令下载
+	URL：mobile.php?mod=pajs&ac=StateUpCommandDown
+	   POST数据：
+	　　	tid://int 终端ID
+		schoolid://int 所属学校ID
+		lastupdate://String 本终端最后更新数据时间
+		note://String 备注，用文本格式显示终端的各种状态
+
+	   返回数据：
+		{
+		"command"://int 命令字。
+	　　"jsdate"://String 接收时间，unixtime格式,
+		"para0"://String 命令参数0，可填采集终端指定目录、文件名等。
+	　　"para1"://String 命令参数1，可填上传、下载URL等。
+		}
+		
+	   备注：
+	命令字：
+	　　0：无具体命令；
+	　　1：重启采集终端系统（目前未实现）。
+	　　2：重启采集终端软件。
+	　　3：升级软件。
+	　　4：开站上报，以便更新采集终端基础数据。
+	　　5：下载数据更新，更新卡表、用户表及对应的用户头像、语音文件。
+	　　6：上传指定文件，给出采集终端指定目录、文件名和上传URL，可上传数据库文件等。
+	　　7：下载指定文件，给出采集终端指定目录、文件名和下载URL，可下载更新默认“屏保照片”等，将覆盖原文件。
+	参数：
+	命令0~5时，参数填空“”，命令6、7则填具体路径。
+
+7-12、上传晨检记录
+
+URL：mobile.php?mod=pajs&ac=jks
+	   POST数据：
+		student_id: // 学生id
+		class_id : //班级id
+		school_id : //学校id
+		doctor_name : //医生姓名
+		tiwen : //体温
+		pifu : // 皮肤
+		eyes : //眼睛
+		mouth : //嘴巴
+		nose : //鼻子
+		houlong : //喉咙
+		oral : //口腔
+		hand : //手
+		foot : //脚
+		dateline : //体检时间
+		
+
+	   返回数据：
+		{
+			"status":// string 返回状态 success 成功 fail失败
+		}
+		
+
+//==================================8、下载部分==============================
+8-1、获取最新的软件版本：
+   URL：mobile.php?mod=download&ac=getLastVer&solfcode=软件编号（目前只有安卓客户端，编号为：AZKHD）
+   POST数据:
+	NULL
+
+   返回数据：
+	{
+	"downname":文件名,
+	"ver":当前最新软件版本号,
+	"solfcode":软件编号,
+	"filepath":文件路径下载绝对路径
+	}
+
+//=================================9、获取各分类总数===========================
+9-1、获取日志、文章数据量：
+   URL：mobile.php?mod=article_total&dateline=时间标识（可选，格式：UNIX时间戳）
+   POST数据：
+        NULL
+
+   返回数据：
+        {
+	"czgs":成长故事文章更新数,
+	"yezx":育儿资讯文章更新数,
+        "log":[
+	   "catname":"分类名称",
+	   "num":"更新数"
+	]
+	}
+
+//===============================10、业务开通==================================
+10-1、获取日志、文章数据量：
+    URL：mobile.php?mod=app&ac=ywjs&id=(业务id)
+    POST数据：
+        NULL
+
+   返回数据：
+        开通结果
+
+//===============================11、相册==================================
+11-1、创建相册
+	URL：mobile.php?mod=album&ac=createalbum
+	接口名：创建相册
+	描述：必须要上传图片之后，才能创建相册，否则相册无法显示相册封面。
+	方式：POST
+	参数方式：json格式
+	参数：
+	     title     -- 封面图片，如果0，表示使用系统的默认封面图片；如果是数组，数组格式为[{"picid":"图片ID","pictitle":"图片描述"},{"picid":"图片ID","pictitle":"图片描述"}]
+	     albumname -- 相册名称
+	     friend    -- 权限：0-全站用户可见、1-仅好友可见、2-指定好友可见、3-仅自己可见、4-凭密码可见
+	     target_names -- 如果friend选择了2，那么该字段填写用户名，多个用户用空格分隔
+	     password -- 如果friend选择了4,该字段填写访问密码
+             spacetype -- 0:个人空间  1:班级空间 2:学校空间
+
+	输出：
+	     {'res'=>成功返回true失败返回false,'msg'=>'输出信息','albumid'=>新增的相册ID}
+
+
+11-2、删除相册
+	URL：mobile.php?mod=album&ac=deletealbum
+	接口名：删除相册
+	描述：删除相册，会连里面的图片一起删除
+	方式：POST
+	参数方式：json格式
+	参数：
+	     albumids  -- 相册ID
+
+	输出：
+	     {'res'=>成功返回true失败返回false,'msg'=>'输出信息','dels'=>删除的数量}
+
+
+11-3、相册列表
+	URL：mobile.php?mod=album&ac=albumlist
+	接口名：相册列表
+	描述：相册列表
+	方式：GET
+	参数：
+	     uid  -- 用户ID
+
+	输出：
+	     [{'albumid':'相册ID','albumname':'相册名称','pic':'相册封面'},{'albumid':'相册ID','albumname':'相册名称','pic':'相册封面'}]
+
+
+11-4、图片列表
+	URL：mobile.php?mod=album&ac=piclist
+	接口名：图片列表
+	描述：图片列表
+	方式：GET
+	参数：
+	     albumid  -- 相册ID
+
+	输出：
+	     [{'picid':'图片ID','albumid':'相册ID','uid':'所属用户ID','username':'所属用户名','dateline':'上传时间','postip':'上传IP','filename':'文件名','title':'标题','type'=>'类型','size'=>'大小','filepath'=>'路径','thumb'=>'是否为有缩略图','remote'=>'是否远程文件'}]
+
+
+11-5、上传图片
+	URL：mobile.php?mod=album&ac=uploadpic
+	接口名：上传图片
+	描述：上传图片
+	方式：POST
+	参数方式：http post
+	参数：
+	     albumid  -- 相册ID
+	     title    -- 相片的标题
+	     Filedata -- 上传的文件
+
+	输出：
+	     {'res':成功返回true失败返回false,'picid':图片ID,'url':'图片URL','bigimg':'大图URL'}
+
+
+11-6、获取用户所有相册列表
+	URL：mobile.php?mod=album&ac=getuserallalbum
+	接口名：获取用户所有相册列表
+	描述：获取用户所有相册列表
+	方式：GET
+	参数：
+	     uid  -- 用户ID（如果获取当前登录用户，此参数可省略）
+
+	输出：
+	     {"school":[{"albumid":"学校相册编号","albumname":"学校相册名称","pic":"小图路径"},{"albumid":"学校相册编号","albumname":"学校相册名称","pic":"小图路径"}],"class":[{"uid":"班级用户ID","nickname":"班级名称","album":[{"albumid":"班级相册编号","albumname":"班级相册名称","pic":"小图路径"},{"albumid":"班级相册编号","albumname":"班级相册名称","pic":"小图路径"}]},{"uid":"班级用户ID","nickname":"班级名称","album":[{"albumid":"班级相册编号","albumname":"班级相册名称","pic":"小图路径"},{"albumid":"班级相册编号","albumname":"班级相册名称","pic":"小图路径"}]}],"myself":[{"albumid":"自己相册编号","albumname":"自己相册名称","pic":"小图路径"},{"albumid":"自己相册编号","albumname":"自己相册名称","pic":"小图路径"}]}

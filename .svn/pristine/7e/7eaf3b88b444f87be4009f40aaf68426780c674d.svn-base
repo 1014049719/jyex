@@ -1,0 +1,217 @@
+<html>
+    <script type="text/javascript">
+        
+        var last_Caret_Pos_begin = 0;
+        var last_Caret_Pos_end = 0;
+        var last_Caret_Start_Node = null;
+        var last_Caret_End_Node = null;
+        
+        /*
+        document.addEventListener('click', function(e)
+                                  {
+                                  //if(e.srcElement.id != document.getElementById('content'))
+                                  if(e.srcElement.id != 'content')
+                                  {
+                                        document.getElementById('content').blur();
+                                        onReset();
+                                  }
+                                  else
+                                  {
+                                        var range = window.getSelection().getRangeAt(0);
+                                  
+                                        last_Caret_Pos_begin = range.startOffset;
+                                        last_Caret_Pos_end = range.endOffset;
+                                        last_Caret_Start_Node = range.startContainer;
+                                        last_Caret_End_Node = range.endContainer;
+                                  }
+                                  
+                                  }, false);  
+                                */
+                                  
+                                function onReset()
+                                {
+                                    var mainDiv = document.getElementById('content');
+                                    
+                                    last_Caret_Pos_begin = mainDiv.childNodes[mainDiv.childNodes.length-1].length;
+                                    last_Caret_Pos_end = mainDiv.childNodes[mainDiv.childNodes.length-1].length;
+                                    last_Caret_Start_Node = mainDiv.childNodes[mainDiv.childNodes.length-1];
+                                    last_Caret_End_Node = last_Caret_Start_Node;
+                                     
+                                    if(last_Caret_Pos_end == 'undefined' || last_Caret_Pos_end == null)
+                                    {
+                                        last_Caret_Pos_begin = mainDiv.childNodes[mainDiv.childNodes.length-1].offsetWidth;
+                                        last_Caret_Pos_end = last_Caret_Pos_begin;
+                                    }
+                                }
+        
+                                function onblurEX()
+                                  { 
+                                      
+                                        var range = window.getSelection().getRangeAt(0);
+                                        last_Caret_Pos_begin = range.startOffset;
+                                        last_Caret_Pos_end = range.endOffset;
+                                      
+                                        last_Caret_Start_Node = range.startContainer;
+                                        last_Caret_End_Node = range.endContainer;
+                                      
+                                  };
+        
+        document.addEventListener('touchmove', function(e)
+                                  { 
+                                        var range = window.getSelection().getRangeAt(0);
+                                  
+                                        last_Caret_Pos_begin = range.startOffset;
+                                        last_Caret_Pos_end = range.endOffset;
+                                        last_Caret_Start_Node = range.startContainer;
+                                        last_Caret_End_Node = range.endContainer;
+                                  }, false);
+        
+        
+        document.addEventListener('touchend', function(e)
+                                  { 
+                                     // alert('11111'); 
+                                  //alert( window.getSelection() );
+                                  
+                                  //if  ( window.getSelection() ) {
+                                      //alert('000000'); 
+                                  //try
+                                  //{
+                                        var range = window.getSelection().getRangeAt(0);
+                                  
+                                        last_Caret_Pos_begin = range.startOffset;
+                                        last_Caret_Pos_end = range.endOffset;
+                                        last_Caret_Start_Node = range.startContainer;
+                                        last_Caret_End_Node = range.endContainer;
+                                  //}
+                                  //catch(e)
+                                  //{
+                                  //alert('77777777'); 
+                                  //document.getElementById('content').focus();  
+                                  //return;
+                                  //}
+                                  /*}
+                                  else
+                                  {
+                                     alert('77777777'); 
+                                    document.getElementById('content').focus();
+                                    return;
+                                  }*/
+                                  
+                                       //alert('1111155555'); 
+
+                                        var touch = e.changedTouches.item(0);
+                                        var touchX = touch.clientX;
+                                        var touchY = touch.clientY;
+
+                                        // Get the rect for the content  
+                                        var contentDIVRect = document.getElementById('content').getClientRects()[0];
+
+                                        // Make sure we don't block touches to the content div
+                                        if (touchX > contentDIVRect.left && touchY < contentDIVRect.bottom) 
+                                        {
+                                            //alert('2222');     
+                                            return;
+                                        }
+                                        
+                                        //alert('3333'); 
+                                  
+                                        // If the touch is out of the content div then simply give the div focus
+                                        document.getElementById('content').focus();
+                                }, false);  
+        
+        function moveImageAtTo(x, y, newX, newY) 
+        {
+            
+            // Get our required variables
+            var element  = document.elementFromPoint(x, y);
+            
+            if (element.toString().indexOf('Image') == -1) 
+            {
+                // Attempt to move an image which doesn't exist at the point
+                
+                return;
+            }
+            
+            var caretRange = document.caretRangeFromPoint(newX, newY);
+            var selection = window.getSelection();
+            
+            // Save the image source so we know this later when we need to re-insert it
+            var imageSrc = element.src;
+            
+            // Set the selection to the range of the image, so we can delete it
+            var nodeRange = document.createRange();
+            nodeRange.selectNode(element);
+            selection.removeAllRanges();
+            selection.addRange(nodeRange);
+            
+            // Delete the image
+            document.execCommand('delete');
+            
+            // Set the selection to the caret range, so we can then add the image
+            var selection = window.getSelection();
+            var range = document.createRange();
+            selection.removeAllRanges();
+            selection.addRange(caretRange);
+            
+            // Re-insert the image
+            document.execCommand('insertImage', false, imageSrc);
+        }
+        
+        function reAddCreateSelection()
+        {
+            var mainDiv = document.getElementById('content');
+            
+            if(last_Caret_Start_Node === mainDiv)
+            {
+                onReset();
+            }
+            
+            var range = document.createRange();
+            
+            range.setStart(last_Caret_Start_Node,last_Caret_Pos_begin);
+            range.setEnd(last_Caret_End_Node,last_Caret_Pos_end);
+            
+            var sel = window.getSelection();
+            
+            sel.removeAllRanges();
+            sel.addRange(range);
+            
+            if(last_Caret_Pos_begin === last_Caret_Pos_end)
+            {
+                
+            }
+            else
+            {
+                document.execCommand('delete');
+            }
+            
+            last_Caret_Pos_begin = 0;
+            last_Caret_Pos_end = 0;
+        }
+                
+        
+    </script>
+    
+    <body onload='document.getElementById("content").focusin()'>
+        <div id="content" contenteditable="true" style="font-family: Helvetica;background-color:#F7F4DE;">      </div>
+        <br>   
+    </body>
+    
+    <script language="javascript">
+        document.getElementById("content").onkeyup=function()
+        {
+            var e=window.event;//||e;
+            var srcElement = e.srcElement || e.target; 
+            //alert(e.clientX+"=>"+e.clientY);
+            //alert(e.pageX+"=>"+e.pageY);
+            
+            
+            //alert(e.keyCode);
+            if ( e.keyCode == 13 )
+            {
+                var url="pressreturn://"+"127.0.0.0"+"/";
+                document.location = url;
+            }
+        }
+    </script>
+</html>

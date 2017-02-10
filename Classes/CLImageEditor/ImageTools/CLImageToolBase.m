@@ -1,0 +1,75 @@
+//
+//  CLImageToolBase.m
+//
+//  Created by sho yakushiji on 2013/10/17.
+//  Copyright (c) 2013年 CALACULU. All rights reserved.
+//
+
+#import "CLImageToolBase.h"
+
+@implementation CLImageToolBase
+
+- (id)initWithImageEditor:(_CLImageEditorViewController*)editor withToolInfo:(CLImageToolInfo*)info
+{
+    self = [super init];
+    if(self){
+        self.editor   = editor;
+        self.toolInfo = info;
+    }
+    return self;
+}
+
++ (NSString*)defaultIconImagePath
+{
+    return [NSString stringWithFormat:@"CLImageEditor.bundle/%@/icon.png", NSStringFromClass([self class])];
+}
+
++ (CGFloat)defaultDockedNumber
+{
+    // Image tools are sorted according to the dockedNumber in tool bar.
+    // Override point for tool bar customization
+    NSArray *tools = @[
+                       @"CLFilterTool",
+                       @"CLAdjustmentTool",
+                       @"CLEffectTool",
+                       @"CLBlurTool",
+                       @"CLClippingTool",
+                       @"CLRotateTool",
+                       @"CLToneCurveTool",
+                       ];
+    return [tools indexOfObject:NSStringFromClass(self)];
+}
+
++ (NSArray*)subtools
+{
+    return nil;
+}
+
++ (NSString*)defaultTitle
+{
+    return @"DefaultTitle";
+}
+
++ (BOOL)isAvailable
+{
+    return NO;
+}
+
+#pragma mark-
+
+- (void)setup
+{
+    
+}
+
+- (void)cleanup
+{
+    
+}
+
+- (void)executeWithCompletionBlock:(void(^)(UIImage *image, NSError *error, NSDictionary *userInfo))completionBlock
+{
+    completionBlock(self.editor.imageView.image, nil, nil);
+}
+
+@end

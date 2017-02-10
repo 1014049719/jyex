@@ -1,0 +1,848 @@
+//
+//  UIXCSelect.m
+//  JYEX
+//
+//  Created by zd on 13-12-24.
+//  Copyright (c) 2013年 洋基科技. All rights reserved.
+//
+
+#import "UIXCSelect.h"
+#import "PubFunction.h"
+#import "UIAstroAlert.h"
+#import "CommonAll.h"
+#import "GlobalVar.h"
+#import "Global.h"
+
+@interface UIXCSelect ()
+
+@end
+
+@implementation UIXCSelect
+@synthesize XCList ;
+@synthesize callBackObject ;
+@synthesize callBackSel ;
+@synthesize bussRequest ;
+@synthesize schoolXCList ;
+@synthesize classXCList ;
+@synthesize myselfXCList ;
+
+- (void)dealloc
+{
+    self.XCList = nil ;
+    self.callBackObject = nil ;
+    self.callBackSel = nil ;
+    self->tvXC.dataSource = nil ;
+    self->tvXC.delegate = nil ;
+    self.schoolXCList = nil ;
+    self.classXCList = nil ;
+    self.myselfXCList = nil ;
+    
+    [self.bussRequest cancelBussRequest] ;
+    self.bussRequest = nil ;
+    
+    SAFEREMOVEANDFREE_OBJECT(lbTitle) ;
+    SAFEREMOVEANDFREE_OBJECT(btnBack)  ;
+    SAFEREMOVEANDFREE_OBJECT(btnNavFinish) ;
+    SAFEREMOVEANDFREE_OBJECT(tvXC) ;
+    SAFEREMOVEANDFREE_OBJECT(txfXCName) ;
+    SAFEREMOVEANDFREE_OBJECT(vNewXC) ;
+    SAFEREMOVEANDFREE_OBJECT(btnSchoolS) ;
+    SAFEREMOVEANDFREE_OBJECT(btnClassS) ;
+    SAFEREMOVEANDFREE_OBJECT(btnMyselfS) ;
+    SAFEREMOVEANDFREE_OBJECT(activityIndicator);
+    
+    [super dealloc] ;
+}
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        //self.XCList = [NSMutableArray array] ;
+        self.callBackObject = nil ;
+        self.callBackSel = nil ;
+        self->bussRequest = nil ;
+        self->schoolXCList = nil ;
+        self->classXCList = nil ;
+        self->myselfXCList = nil ;
+        spaceType = 0 ;
+        spaceID = 0 ;
+        //set data for test
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+
+    //获取相册的数据
+    [self QueryJYEXAlbumList] ;
+    
+    //self->tvXC.sectionIndexBackgroundColor = [UIColor whiteColor] ;
+    
+    self->vNewXC.hidden = YES ;
+    self->tvXC.delegate = self ;
+    self->tvXC.dataSource = self ;
+    
+    [self initSpaceType] ;
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+//--------------------------------------------------------------------------
+#pragma makert UITableView delegate  dataSource
+/*
+- (UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *reuseIdetify = @"XCCell" ;
+    UITableViewCell *cell = nil ;
+    NSDictionary *dic = nil ;
+    NSString *str = @"" ;
+    int type = 0 ;
+    
+    cell = [tableView dequeueReusableCellWithIdentifier:reuseIdetify] ;
+    
+    if( !cell )
+    {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdetify] ;
+    }
+    
+    type = [self getTableViewSectionType:indexPath.section] ;
+    switch (type) {
+        case 1://学校相册
+            dic = [self.schoolXCList objectAtIndex:indexPath.row] ;
+            break;
+        case 2://班级相册
+            dic = [self.classXCList objectAtIndex:indexPath.row] ;
+            break ;
+        case 3://个人相册
+            dic = [self.myselfXCList objectAtIndex:indexPath.row] ;
+            break ;
+        default:
+            dic = nil ;
+            str = @"" ;
+            break;
+    }
+    if( dic != nil )
+    {
+        str = [dic objectForKey:@"albumname"] ;
+    }
+    cell.textLabel.text = str ;
+    
+    return cell ;
+}
+*/
+- (UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *reuseIdetify = @"XCCell" ;
+    UITableViewCell *cell = nil ;
+    NSDictionary *dic = nil ;
+    NSString *str = @"" ;
+    NSArray *array = nil ;
+    NSDictionary *dic2 = nil ;
+    
+    cell = [tableView dequeueReusableCellWithIdentifier:reuseIdetify] ;
+    
+    if( !cell )
+    {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdetify] ;
+    }
+    
+    dic = [self.XCList objectAtIndex:indexPath.section] ;
+    array = [dic objectForKey:@"XCList"] ;
+    dic2 = [array objectAtIndex:indexPath.row] ;
+    str = [dic2 objectForKey:@"albumname"] ;
+    
+    cell.textLabel.text = str ;
+    
+    return cell ;
+}
+
+/*
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    //return self->XCList.count ;
+    int count = 0 ;
+    
+    switch( [self getTableViewSectionType:section] )
+    {
+        case 1://学校相册
+            count = [self.schoolXCList count] ;
+            break;
+        case 2:
+            count = [self.classXCList count] ;
+            break ;
+        case 3:
+            count = [self.myselfXCList count] ;
+            break ;
+        default:
+            count = 0 ;
+            break;
+    }
+    
+    return count ;
+}*/
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    int count = 0 ;
+    NSDictionary *dic = nil ;
+    NSArray *array = nil ;
+    
+    dic = [self.XCList objectAtIndex:section] ;
+    array = [dic objectForKey:@"XCList"] ;
+    count = (int)[array count] ;
+    
+    return count ;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    int count = 0 ;
+    count = (int)[self.XCList count] ;
+    return count ;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 33.0 ;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    UILabel *lb = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 33.0)] ;
+    lb.backgroundColor = [UIColor whiteColor] ;
+    lb.textColor = [UIColor blueColor] ;
+    lb.font = [UIFont boldSystemFontOfSize:18.0f] ;
+    NSDictionary *dic = nil ;
+    NSString *str = nil ;
+    
+    dic = [self.XCList objectAtIndex:section] ;
+    str = [dic objectForKey:@"SectionTitle"] ;
+    lb.text = str ;
+    
+    return lb ;
+}
+/*
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *xc = nil ;
+    NSDictionary *dic = nil ;
+    int type = 0 ;
+    
+    //xc = [self.XCList objectAtIndex:indexPath.row] ;
+    //xc = @"ABCD0123456789" ;
+    type = [self getTableViewSectionType:indexPath.section] ;
+    switch (type)
+    {
+        case 1://学校相册
+            dic = [self.schoolXCList objectAtIndex:indexPath.row] ;
+            break;
+        case 2://班级相册
+            dic = [self.classXCList objectAtIndex:indexPath.row] ;
+            break;
+        case 3://个人相册
+            dic = [self.myselfXCList objectAtIndex:indexPath.row] ;
+            break;
+        default:
+            dic = nil ;
+            break;
+    }
+    xc = [dic objectForKey:@"albumname"] ;
+    NSLog( @"选择的相册是:%@", xc ) ;
+    
+    if( self.callBackObject != nil && self.callBackSel != nil )
+    {
+        if( [self.callBackObject respondsToSelector:self.callBackSel] )
+        {
+            [self.callBackObject performSelector:self.callBackSel withObject:dic] ;
+        }
+    }
+        
+    [self.navigationController popViewControllerAnimated:YES] ;
+}
+*/
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *xc = nil ;
+    NSDictionary *dic = nil ;
+    NSDictionary *dic2 = nil ;
+    NSArray *array = nil ;
+    
+    dic2 = [self.XCList objectAtIndex:indexPath.section] ;
+    array = [dic2 objectForKey:@"XCList"] ;
+    dic = [array objectAtIndex:indexPath.row] ;
+    
+    xc = [dic objectForKey:@"albumname"] ;
+    NSLog( @"选择的相册是:%@", xc ) ;
+    
+    //add 2014.9.26,需要添加相册所属的uid和用户名
+    NSString *strTitle = [dic2 objectForKey:@"SectionTitle"] ;
+    NSMutableDictionary *dicAlbum = [NSMutableDictionary dictionaryWithDictionary:dic];
+    if ([strTitle isEqualToString:@"学校相册"]) {
+        //学校的相册结构中已有这两字段
+    }
+    else if ([strTitle isEqualToString:@"个人相册"]) {
+        [dicAlbum setObject:TheCurUser.sUserID forKey:@"uid"];
+        [dicAlbum setObject:TheCurUser.sUserName forKey:@"nickname"];
+    }
+    else {
+        //班级相册
+        [dicAlbum setObject:[dic2 objectForKey:@"uid"] forKey:@"uid"];
+        [dicAlbum setObject:strTitle forKey:@"nickname"];
+    }
+    
+    
+    if( self.callBackObject != nil && self.callBackSel != nil )
+    {
+        if( [self.callBackObject respondsToSelector:self.callBackSel] )
+        {
+            [self.callBackObject performSelector:self.callBackSel withObject:dicAlbum] ;
+        }
+    }
+    
+    [self.navigationController popViewControllerAnimated:YES] ;
+}
+
+/*
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    int type = 0 ;
+    NSString *str = nil ;
+    type = [self getTableViewSectionType:section] ;
+    switch (type) {
+        case 1:
+            str = @"学校相册" ;
+            break;
+        case 2:
+            str = @"班级相册" ;
+            break ;
+        case 3:
+            str = @"个人相册" ;
+            break ;
+        default:
+            str = @"" ;
+            break;
+    }
+    return str ;
+}*/
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    NSDictionary *dic = nil ;
+    NSString *str = nil ;
+    
+    dic = [self.XCList objectAtIndex:section] ;
+    str = [dic objectForKey:@"SectionTitle"] ;
+    
+    return str ;
+}
+
+
+
+//--------------------------------------------------------------------------
+
+
+
+- (IBAction)onCancel:(id)sender
+{
+    NSLog( @"取消" ) ;
+    if ( nCreatFlag == 0 ) {
+        [self.navigationController popViewControllerAnimated:YES] ;
+    }
+    else {
+        nCreatFlag = 0;
+        self->lbTitle.text = @"上传到";
+        [btnNavFinish setTitle:@"新建相册" forState:nil];
+        [self onHideNewXCView:nil];
+    }
+}
+
+
+- (IBAction)onOK:(id)sender
+{
+    NSLog( @"新建相册" ) ;
+    
+    if ( nCreatFlag == 0 ) {
+        nCreatFlag = 1;
+        self->txfXCName.text = @"" ;
+        self->lbTitle.text = @"新建相册" ;
+        //self->btnNavFinish.hidden = YES ;
+        [btnNavFinish setTitle:@"创建" forState:nil];
+        self->vNewXC.hidden = NO ;
+        [self->txfXCName becomeFirstResponder] ;
+    }
+    else {
+        NSString *xc = nil ;
+        
+        NSLog( @"新建相册" ) ;
+        xc = [NSString stringWithFormat:@"%@", self->txfXCName.text] ;
+        
+        if( [xc isEqualToString: @""] )
+        {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil message:@"请输入相册名称" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            [alertView show];
+            [alertView release];
+            return ;
+        }
+        
+        NSLog( @"新建相册名为:%@", xc ) ;
+        
+        [self CreateJYEXAlbum] ;
+        
+    }
+}
+
+
+- (IBAction)onHideNewXCView:(id)sender
+{
+    self->vNewXC.hidden = YES ;
+    [self->txfXCName resignFirstResponder] ;
+}
+
+- (void) loadXCListFromBD
+{
+    NSDictionary *dict = nil;
+    
+    //将获得的相册列表信息缓存
+    NSString *strKey = [NSString stringWithFormat:@"JYEX_XCLIST_%@", TheCurUser.sUserID] ;
+    //[[NSUserDefaults standardUserDefaults] setObject:dict forKey:strKey];
+    dict = [[NSUserDefaults standardUserDefaults] objectForKey:strKey];
+    
+    [self dispAlbum:dict];
+}
+
+
+-(void)dispAlbum:(NSDictionary *)dict
+{
+    NSLog(@"%@",dict);
+    self.schoolXCList = [NSArray arrayWithArray:[dict objectForKey:@"school"]] ;
+    self.classXCList = [NSArray arrayWithArray:[dict objectForKey:@"class"]] ;
+    self.myselfXCList = [NSArray arrayWithArray:[dict objectForKey:@"myself"]] ;
+    
+    NSLog( @"school:%@", self.schoolXCList ) ;
+    NSLog( @"class:%@", self.classXCList ) ;
+    NSLog( @"myself:%@", self.myselfXCList ) ;
+    
+    NSArray *arrSchool = [dict objectForKey:@"school"];
+    NSArray *arrMyself = [dict objectForKey:@"myself"];
+    NSArray *arrAllClass = [dict objectForKey:@"class"];
+    
+    self.XCList = [NSMutableArray array] ;
+    NSMutableDictionary *mdic = nil ;
+    NSMutableArray *array = nil ;
+    //学校相册
+    if ( arrSchool)
+    {
+        if( [arrSchool count] > 0 )
+        {
+            mdic = [NSMutableDictionary dictionary] ;
+            [self.XCList addObject:mdic] ;
+            [mdic setObject:@"学校相册" forKey:@"SectionTitle"] ;
+            array = [NSMutableArray array] ;
+            [mdic setObject:array forKey:@"XCList"] ;
+            for (NSDictionary *dic in arrSchool)
+            {
+                [array addObject:dic] ;
+                //NSString *strAlbumid = [dic objectForKey:@"albumid"];
+                //NSString *strAlbumname = [dic objectForKey:@"albumname"];
+                //NSLog(@"school:%@ %@",strAlbumid,strAlbumname);
+            }
+            
+        }
+    }
+    
+    
+    TJYEXLoginUserInfo *u = (TJYEXLoginUserInfo*)TheCurUser;
+    
+    //个人相册
+    if ( arrMyself &&
+        ( ( ([u isInfantsSchoolTeacher]||[u isMiddleSchoolTeacher]) && [_GLOBAL getAlbumTypeFlag]==0) ||
+         ([u isInfantsSchoolParent]||[u isMiddleSchoolParent])
+         )
+        )
+    {
+        if( [arrMyself count] > 0 )
+        {
+            mdic = [NSMutableDictionary dictionary] ;
+            [self.XCList addObject:mdic] ;
+            [mdic setObject:@"个人相册" forKey:@"SectionTitle"] ;
+            array = [NSMutableArray array] ;
+            [mdic setObject:array forKey:@"XCList"] ;
+            
+            for (NSDictionary *dic in arrMyself)
+            {
+                //NSString *strAlbumid = [dic objectForKey:@"albumid"];
+                //NSString *strAlbumname = [dic objectForKey:@"albumname"];
+                //NSLog(@"myself:%@ %@",strAlbumid,strAlbumname);
+                [array addObject:dic] ;
+            }
+        }
+    }
+    
+    //班级相册
+    if ( arrAllClass &&
+        ( ([u isInfantsSchoolTeacher]||[u isMiddleSchoolTeacher]) && [_GLOBAL getAlbumTypeFlag]==1)
+        )
+    {
+        if( [arrAllClass count] > 0 )
+        {
+            for (NSDictionary *dic in arrAllClass)
+            {
+                NSString *strName = [dic objectForKey:@"nickname"];
+                NSLog(@"class %@:",strName);
+                
+                mdic = [NSMutableDictionary dictionary] ;
+                [self.XCList addObject:mdic] ;
+                [mdic setObject:strName forKey:@"SectionTitle"] ;
+                //add 2014.9.26,增加uid
+                [mdic setObject:[dic objectForKey:@"uid"] forKey:@"uid"];
+                
+                array = [NSMutableArray array] ;
+                [mdic setObject:array forKey:@"XCList"] ;
+                
+                NSArray *arrClass = [dic objectForKey:@"album"];
+                if ( arrClass )
+                {
+                    for( NSDictionary *dic1 in arrClass )
+                    {
+                        [array addObject:dic1] ;
+                        //NSString *strAlbumid = [dic1 objectForKey:@"albumid"];
+                        //NSString *strAlbumname = [dic1 objectForKey:@"albumname"];
+                        //NSLog(@"class %@:%@ %@",strName,strAlbumid,strAlbumname);
+                    }
+                }
+            }
+        }
+    }
+    
+    [self->tvXC reloadData] ;
+}
+
+
+
+//查询相册列表
+-(void)QueryJYEXAlbumList
+{
+    //先判断网络是否通，不通则加载本地数据
+    if( [[Global instance] getNetworkStatus] == NotReachable )
+    {
+        
+        [self loadXCListFromBD];
+        return ;
+    }
+    
+    activityIndicator.hidden = NO;
+    [activityIndicator startAnimating];
+    
+    [bussRequest cancelBussRequest];
+    self.bussRequest = [BussMng bussWithType:BMJYEXQueryAlbumList];
+    
+    [bussRequest request:self :@selector(syncCallback_QueryJYEXAlbumList:) :nil];
+    return;
+}
+
+
+- (void)syncCallback_QueryJYEXAlbumList:(TBussStatus*)sts
+{
+	[bussRequest cancelBussRequest];
+	self.bussRequest = nil;
+	
+    activityIndicator.hidden = YES;
+    [activityIndicator stopAnimating];
+    
+	if ( sts.iCode != 200) //成功
+	{
+		[UIAstroAlert info:sts.sInfo :2.0 :NO :LOC_MID :NO];
+        
+        LOG_ERROR(@"Err:query album");
+        return;
+	}
+    
+    NSDictionary *dict =(NSDictionary *)(sts.rtnData);
+    //add by zd 2015-01-12
+    //将获得的相册列表信息缓存
+    NSString *strKey = [NSString stringWithFormat:@"JYEX_XCLIST_%@", TheCurUser.sUserID] ;
+    [[NSUserDefaults standardUserDefaults] setObject:dict forKey:strKey];
+    NSLog( @"%@", [[NSUserDefaults standardUserDefaults] objectForKey:strKey] ) ;
+   
+    [self dispAlbum:dict];
+    
+}
+
+
+- (BOOL)getSchoolFlag
+{
+    BOOL result = NO ;
+    
+    if( self.schoolXCList )
+    {
+        if( [self.schoolXCList count] > 0 )
+        {
+            result = YES ;
+        }
+    }
+    
+    return result ;
+}
+
+- (BOOL)getClassFlag
+{
+    BOOL result = NO ;
+    
+    if( self.classXCList )
+    {
+        if( [self.classXCList count] > 0 )
+        {
+            result = YES ;
+        }
+    }
+    
+    return result ;
+}
+
+- (BOOL)getMyFlag
+{
+    BOOL result = NO ;
+    
+    if( self.myselfXCList )
+    {
+        if( [self.myselfXCList count] > 0 )
+        {
+            result = YES ;
+        }
+    }
+    
+    return result ;
+}
+
+//1:学校相册 2:班级相册  3:个人相册
+- (int)getTableViewSectionType:(int)section
+{
+    int result = 0 ;
+    
+    if( section == 0 )
+    {
+        if( self.schoolXCFlag )
+        {
+            result = 1 ;
+        }
+        else
+        {
+            if( self.classXCFlag )
+            {
+                result = 2 ;
+            }
+            else
+            {
+                if( self.myXCFlag )
+                {
+                    result = 3 ;
+                }
+            }
+        }
+    }
+    else if( section == 1 )
+    {
+        if( self.classXCFlag )
+        {
+            result = 2 ;
+        }
+        else
+        {
+            if( self.myXCFlag )
+            {
+                result = 3 ;
+            }
+        }
+    }
+    else if( section == 2 )
+    {
+        result = 3 ;
+    }
+    
+    
+    return result ;
+}
+
+
+- (IBAction)onSchoolSpaceSelected:(id)sender
+{
+    UIButton *btn = (UIButton*)sender ;
+    
+    spaceType = 0 ;
+    
+    if( btn.selected )
+    {
+        btn.selected = NO ;
+    }
+    else
+    {
+        spaceType = 1 ;
+        btn.selected = YES ;
+        //btnSchoolS.selected = NO ;
+        btnClassS.selected = NO ;
+        btnMyselfS.selected = NO ;
+        spaceID = 2 ;
+    }
+}
+
+- (IBAction)onClassSpaceSelected:(id)sender
+{
+    UIButton *btn = (UIButton*)sender ;
+    
+    spaceType = 0 ;
+    
+    if( btn.selected )
+    {
+        btn.selected = NO ;
+    }
+    else
+    {
+        spaceType = 2 ;
+        btn.selected = YES ;
+        btnSchoolS.selected = NO ;
+        //btnClassS.selected = NO ;
+        btnMyselfS.selected = NO ;
+        spaceID = 1 ;
+    }
+}
+
+- (IBAction)onMyselfSpaceSelected:(id)sender
+{
+    UIButton *btn = (UIButton*)sender ;
+    
+    spaceType = 0 ;
+    
+    if( btn.selected )
+    {
+        btn.selected = NO ;
+    }
+    else
+    {
+        spaceType = 3 ;
+        btn.selected = YES ;
+        btnSchoolS.selected = NO ;
+        btnClassS.selected = NO ;
+        //btnMyselfS.selected = NO ;
+        spaceID = 0 ;
+    }
+}
+
+
+//创建相册
+-(void)CreateJYEXAlbum
+{
+    activityIndicator.hidden = NO;
+    [activityIndicator startAnimating];
+    
+    [bussRequest cancelBussRequest];
+    self.bussRequest = [BussMng bussWithType:BMJYEXCreateAlbum];
+    
+    // NSString *albumname = [CommonFunc getCurrentTime];
+    NSString *albumname = [NSString stringWithFormat:@"%@",self->txfXCName.text ] ;
+    //NSNumber *spaceid = [NSNumber numberWithInt:0]; //0:个人空间 1:班级空间 2:学校空间
+    NSNumber *spaceid = [NSNumber numberWithInt:spaceID];
+    
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:albumname,@"albumname",spaceid,@"spaceid", nil];
+    
+    [bussRequest request:self :@selector(syncCallback_CreateJYEXAlbum:) :dic];
+    return;
+}
+
+//查询相册列表回调
+- (void)syncCallback_CreateJYEXAlbum:(TBussStatus*)sts
+{
+    activityIndicator.hidden = YES;
+    [activityIndicator stopAnimating];
+    
+    NSString *str ;
+    str = self->txfXCName.text ;
+	[bussRequest cancelBussRequest];
+	self.bussRequest = nil;
+	
+	if ( sts.iCode != 200) //成功
+	{
+		[UIAstroAlert info:sts.sInfo :2.0 :NO :LOC_MID :NO];
+        
+        LOG_ERROR(@"Err:query album");
+        return;
+	}
+    
+    NSDictionary *dict =(NSDictionary *)(sts.rtnData);
+    NSLog(@"%@",dict);
+    
+    int res = pickJsonIntValue(dict, @"res");
+    NSString *msg = pickJsonStrValue(dict, @"msg");
+    NSString *albumid = pickJsonStrValue(dict, @"albumid");
+    NSString *uid = pickJsonStrValue(dict, @"uid"); //2014.9.26
+    NSString *nickname = pickJsonStrValue(dict, @"nickname");  //2014.9.26
+    NSLog(@"res=%d msg=%@ albumid=%@ uid=%@ nickname=%@",res,msg,albumid,uid,nickname);
+    
+    if( res == 1 ) //创建相册成功
+    {
+        //[UIAstroAlert info:[NSString stringWithFormat:@"创建相册'%@'成功!", str ] :2.0 :NO :LOC_MID :NO];
+        NSDictionary *dc = [NSDictionary dictionaryWithObjectsAndKeys:
+                            str, @"albumname", albumid,  @"albumid",uid,@"uid",nickname,@"nickname", nil] ;
+        if( self.callBackObject != nil && self.callBackSel != nil )
+        {
+            if( [self.callBackObject respondsToSelector:self.callBackSel] )
+            {
+                [self.callBackObject performSelector:callBackSel withObject:dc] ;
+            }
+        }
+        self->vNewXC.hidden = YES ;
+        [self->txfXCName resignFirstResponder] ;
+        [self.navigationController popViewControllerAnimated:YES] ;
+    }
+    else //创建相册失败
+    {
+        if( msg != nil && msg.length > 0 )
+        {
+           [UIAstroAlert info:[NSString stringWithFormat:@"创建相册'%@'失败，错误：'%@'!", str, msg ] :2.0 :NO :LOC_MID :NO];
+        }
+        else
+        {
+           [UIAstroAlert info:[NSString stringWithFormat:@"创建相册'%@'失败!", str] :2.0 :NO :LOC_MID :NO];
+        }
+    }
+}
+
+
+- (void)initSpaceType
+{
+    //0:个人空间 1:班级空间 2:学校空间
+    TJYEXLoginUserInfo *u = (TJYEXLoginUserInfo*)TheCurUser;
+    if ( [u isInfantsSchoolParent] || [u isMiddleSchoolParent] ) {
+            spaceID = 0 ;
+    }
+    else if( [u isInfantsSchoolTeacher] || [u isMiddleSchoolTeacher] ){ //老师
+        spaceID = 1 ;
+        //btnSchoolS.hidden = NO ;
+        //btnClassS.hidden = NO ;
+        //btnMyselfS.hidden = NO ;
+        spaceType = 2 ;
+        btnClassS.selected = YES ;
+        
+        if ( [_GLOBAL getAlbumTypeFlag] == 1 ) spaceID = 1;
+        else spaceID = 0;
+    }
+    else if ( [u isMiddleSchoolMaster] || [u isInfantsSchoolMaster] ) { //园长
+        spaceID = 2 ;
+    }
+    else  //其他
+    {
+        spaceID = 0 ;
+    }
+}
+
+
+@end
